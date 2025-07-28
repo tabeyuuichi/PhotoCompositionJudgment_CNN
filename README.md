@@ -7,7 +7,7 @@
 Python 3.8 以上と以下のパッケージを使用します。
 
 ```bash
-pip install torch torchvision pillow
+pip install torch torchvision pillow scikit-learn
 ```
 
 ## データセット形式
@@ -39,11 +39,10 @@ python train.py /path/to/train_images train_labels.txt --num-classes 3 --epochs 
 python evaluate.py /path/to/test_images test_labels.txt --model-path model.pth --num-classes 3
 ```
 
-これにより正解率が表示されます。学習用と評価用のデータセットを分けることでモデルの性能を確認できます。
+実行するとアキュラシーに加え、リコール、プレシジョン、F1、F0.5 が表示されます。学習用と評価用のデータセットを分けることでモデルの性能を確認できます。
 
 ## モデルファイルについて
 
 `train.py` の `--save-model` オプションで指定したファイルに学習済みモデルが保存されます。評価時にはそのファイルを `--model-path` に渡してください。
 
 以上で、データセットの準備から学習・評価まで一通り実行できます。
-PyTorch と torchvision をインストールした上で次のコマンドを実行します。

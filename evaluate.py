@@ -3,6 +3,7 @@ import os
 import torch
 import torchvision.transforms as T
 from torch.utils.data import DataLoader
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, fbeta_score
 
 from dataset import CompositionDataset
 from model import SimpleCNN
@@ -10,17 +11,23 @@ from model import SimpleCNN
 
 def evaluate(model, dataloader, device):
     model.eval()
-    correct = 0
-    total = 0
+    all_preds = []
+    all_labels = []
     with torch.no_grad():
         for images, labels in dataloader:
             images = images.to(device)
             labels = labels.to(device)
             outputs = model(images)
             _, preds = torch.max(outputs, 1)
-            correct += (preds == labels).sum().item()
-            total += labels.size(0)
-    return correct / total if total > 0 else 0
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
+    accuracy = accuracy_score(all_labels, all_preds)
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        all_labels, all_preds, average="macro", zero_division=0
+    )
+    f05 = fbeta_score(all_labels, all_preds, beta=0.5, average="macro", zero_division=0)
+    return accuracy, precision, recall, f1, f05
 
 
 def main(args):
@@ -36,8 +43,12 @@ def main(args):
     model.load_state_dict(torch.load(args.model_path, map_location=device))
     model.to(device)
 
-    acc = evaluate(model, dataloader, device)
+    acc, prec, recall, f1, f05 = evaluate(model, dataloader, device)
     print(f"Accuracy: {acc * 100:.2f}%")
+    print(f"Precision: {prec:.4f}")
+    print(f"Recall: {recall:.4f}")
+    print(f"F1-score: {f1:.4f}")
+    print(f"F0.5-score: {f05:.4f}")
 
 
 if __name__ == '__main__':
