@@ -46,3 +46,4 @@ python evaluate.py /path/to/test_images test_labels.txt --model-path model.pth -
 `train.py` の `--save-model` オプションで指定したファイルに学習済みモデルが保存されます。評価時にはそのファイルを `--model-path` に渡してください。
 
 以上で、データセットの準備から学習・評価まで一通り実行できます。
+PyTorch と torchvision をインストールした上で次のコマンドを実行します。
