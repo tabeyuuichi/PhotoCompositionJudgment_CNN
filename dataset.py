@@ -9,20 +9,19 @@ class CompositionDataset(Dataset):
         self.image_dir = image_dir
         self.transform = transform
         self.samples = []
+        image_files = [f for f in os.listdir(self.image_dir)
+                       if os.path.isfile(os.path.join(self.image_dir, f))]
+        image_files.sort()
         with open(label_file, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                parts = line.split()
-                if len(parts) != 2:
-                    raise ValueError(f"Invalid line in label file: {line}")
-                filename, label = parts
-                label = int(label)
-                full_path = os.path.join(self.image_dir, filename)
-                if not os.path.exists(full_path):
-                    raise FileNotFoundError(f"{full_path} が見つかりません")
-                self.samples.append((filename, label))
+            labels = [line.strip() for line in f if line.strip()]
+        if len(labels) != len(image_files):
+            raise ValueError("画像の枚数とラベルの数が一致しません")
+        for filename, label_str in zip(image_files, labels):
+            full_path = os.path.join(self.image_dir, filename)
+            if not os.path.exists(full_path):
+                raise FileNotFoundError(f"{full_path} が見つかりません")
+            label = int(label_str)
+            self.samples.append((filename, label))
 
     def __len__(self):
         return len(self.samples)
